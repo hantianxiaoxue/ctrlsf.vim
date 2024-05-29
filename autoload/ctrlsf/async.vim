@@ -93,11 +93,20 @@ func! ctrlsf#async#StartSearch(command) abort
     let s:start_ts = reltime()
 
     if has('nvim')
+      if has("win32")
+        call jobstart(["cmd.exe","/C",a:command],{
+                    \ 'on_stdout': "ctrlsf#async#NeoVimSearchCBWrapper",
+                    \ 'on_stderr': "ctrlsf#async#NeoVimSearchCBWrapper",
+                    \ 'on_exit': "ctrlsf#async#NeoVimSearchCBWrapper",
+                    \ })
+      else
         let s:job_id = jobstart(a:command, {
                     \ 'on_stdout': "ctrlsf#async#NeoVimSearchCBWrapper",
                     \ 'on_stderr': "ctrlsf#async#NeoVimSearchCBWrapper",
                     \ 'on_exit': "ctrlsf#async#NeoVimSearchCBWrapper",
                     \ })
+      endif
+
     else
         let s:job_id = job_start(a:command, {
                     \ 'out_cb': "ctrlsf#async#SearchCB",
